@@ -1,0 +1,9 @@
+{
+  "name": "Gut Tracker",
+  "short_name": "Gut Tracker",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f5f5f7",
+  "theme_color": "#f5f5f7",
+  "description": "Local-only digestion, hydration and nutrition tracker."
+}

@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#f5f5f7" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Gut Tracker" />
+  <link rel="manifest" href="manifest.json" />
+  <title>Gut Tracker</title>
+  <style>
+    :root {
+      --bg: #f5f5f7;
+      --card: #ffffff;
+      --text: #111111;
+      --muted: #6b6b6b;
+      --border: #dedede;
+      --accent: #111111;
+      --danger: #b42318;
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .app {
+      max-width: 760px;
+      margin: 0 auto;
+      min-height: 100vh;
+      padding: calc(env(safe-area-inset-top) + 16px) 16px calc(env(safe-area-inset-bottom) + 90px);
+    }
+
+    h1, h2, h3 { margin: 0; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 22px; margin-bottom: 16px; }
+    h3 { font-size: 17px; }
+
+    .sub {
+      color: var(--muted);
+      margin: 6px 0 18px;
+      font-size: 14px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .category {
+      min-height: 105px;
+      border: 0;
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 18px;
+      text-align: left;
+      font-size: 17px;
+      font-weight: 650;
+      box-shadow: 0 1px 3px rgba(0,0,0,.06);
+      cursor: pointer;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 16px;
+      box-shadow: 0 1px 3px rgba(0,0,0,.06);
+      margin-bottom: 14px;
+    }
+
+    .field { margin-bottom: 14px; }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 650;
+      margin-bottom: 7px;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      font: inherit;
+      padding: 13px 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+      color: var(--text);
+    }
+
+    textarea { min-height: 90px; resize: vertical; }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .tag {
+      border: 1px solid var(--border);
+      background: white;
+      border-radius: 999px;
+      padding: 9px 12px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .tag.active {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+
+    .ingredient-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    button {
+      font: inherit;
+    }
+
+    .primary, .secondary, .danger, .small-btn {
+      border: 0;
+      border-radius: 12px;
+      cursor: pointer;
+    }
+
+    .primary {
+      width: 100%;
+      background: var(--accent);
+      color: white;
+      padding: 14px 16px;
+      font-weight: 700;
+      font-size: 16px;
+    }
+
+    .secondary {
+      width: 100%;
+      background: white;
+      border: 1px solid var(--border);
+      padding: 13px 16px;
+      font-weight: 650;
+    }
+
+    .danger {
+      background: #fff;
+      color: var(--danger);
+      border: 1px solid #f2b8b5;
+      padding: 10px 12px;
+    }
+
+    .small-btn {
+      background: #eee;
+      padding: 9px 11px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .back {
+      border: 0;
+      background: transparent;
+      padding: 5px 0;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .hidden { display: none !important; }
+
+    nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(255,255,255,.96);
+      backdrop-filter: blur(12px);
+      border-top: 1px solid var(--border);
+      padding: 8px 8px calc(env(safe-area-inset-bottom) + 8px);
+      display: flex;
+      justify-content: center;
+      z-index: 10;
+    }
+
+    .nav-inner {
+      width: min(760px, 100%);
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 4px;
+    }
+
+    .nav-btn {
+      border: 0;
+      background: transparent;
+      padding: 10px 4px;
+      color: var(--muted);
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .nav-btn.active { color: var(--text); font-weight: 700; }
+
+    .history-item {
+      border-bottom: 1px solid var(--border);
+      padding: 12px 0;
+    }
+
+    .history-item:last-child { border-bottom: 0; }
+
+    .history-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .muted { color: var(--muted); font-size: 13px; }
+    .details { margin-top: 6px; font-size: 14px; line-height: 1.45; }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .metric {
+      padding: 14px;
+      background: #fafafa;
+      border-radius: 14px;
+    }
+
+    .metric strong {
+      display: block;
+      font-size: 21px;
+      margin-top: 4px;
+    }
+
+    .checkbox-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .checkbox-row input { width: auto; }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 90px;
+      transform: translateX(-50%);
+      background: #111;
+      color: white;
+      padding: 10px 14px;
+      border-radius: 999px;
+      font-size: 14px;
+      z-index: 30;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .2s;
+    }
+
+    .toast.show { opacity: 1; }
+
+    @media (min-width: 640px) {
+      .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .summary-grid { grid-template-columns: repeat(4, 1fr); }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section id="screen-home">
+      <h1>Gut Tracker</h1>
+      <p class="sub">Choose what you want to log.</p>
+      <div class="grid">
+        <button class="category" data-type="food">Food intake</button>
+        <button class="category" data-type="drink">Liquid intake</button>
+        <button class="category" data-type="urine">Urine</button>
+        <button class="category" data-type="stool">Stool</button>
+        <button class="category" data-type="gas">Gas</button>
+        <button class="category" data-type="abdominal">Abdominal discomfort</button>
+        <button class="category" data-type="weight">Body weight</button>
+      </div>
+    </section>
+
+    <section id="screen-form" class="hidden">
+      <div class="topbar">
+        <button class="back" id="backBtn">‹ Back</button>
+        <h2 id="formTitle"></h2>
+      </div>
+      <div id="formContainer"></div>
+    </section>
+
+    <section id="screen-history" class="hidden">
+      <h1>History</h1>
+      <p class="sub">Newest entries first.</p>
+      <div class="card">
+        <div class="field">
+          <label for="historyFilter">Filter</label>
+          <select id="historyFilter">
+            <option value="">All</option>
+            <option value="food">Food</option>
+            <option value="drink">Liquid</option>
+            <option value="urine">Urine</option>
+            <option value="stool">Stool</option>
+            <option value="gas">Gas</option>
+            <option value="abdominal">Abdominal discomfort</option>
+            <option value="weight">Body weight</option>
+          </select>
+        </div>
+      </div>
+      <div class="card" id="historyList"></div>
+    </section>
+
+    <section id="screen-summary" class="hidden">
+      <h1>Today</h1>
+      <p class="sub">Daily overview.</p>
+      <div class="card">
+        <div class="summary-grid" id="summaryGrid"></div>
+      </div>
+    </section>
+
+    <section id="screen-data" class="hidden">
+      <h1>Data</h1>
+      <p class="sub">Export, back up, or restore your local records.</p>
+
+      <div class="card">
+        <button class="secondary" id="exportCsvBtn">Export all logs as CSV</button>
+      </div>
+
+      <div class="card">
+        <button class="secondary" id="backupBtn">Download JSON backup</button>
+      </div>
+
+      <div class="card">
+        <label for="restoreFile">Restore from JSON backup</label>
+        <input id="restoreFile" type="file" accept=".json,application/json" />
+        <p class="muted">Restoring adds records and templates from the selected backup.</p>
+      </div>
+
+      <div class="card">
+        <button class="danger" id="clearBtn">Delete all local data</button>
+      </div>
+    </section>
+  </main>
+
+  <nav>
+    <div class="nav-inner">
+      <button class="nav-btn active" data-screen="home">Log</button>
+      <button class="nav-btn" data-screen="history">History</button>
+      <button class="nav-btn" data-screen="summary">Today</button>
+      <button class="nav-btn" data-screen="data">Data</button>
+    </div>
+  </nav>
+
+  <div id="toast" class="toast"></div>
+
+  <datalist id="foodTitles"></datalist>
+
+<script>
+const DB_NAME = "gutTrackerDB";
+const DB_VERSION = 1;
+const LOG_STORE = "logs";
+const TEMPLATE_STORE = "foodTemplates";
+
+let db;
+let currentType = null;
+
+const TYPE_LABELS = {
+  food: "Food intake",
+  drink: "Liquid intake",
+  urine: "Urine",
+  stool: "Stool",
+  gas: "Gas",
+  abdominal: "Abdominal discomfort",
+  weight: "Body weight"
+};
+
+function openDB() {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(DB_NAME, DB_VERSION);
+
+    request.onupgradeneeded = event => {
+      const database = event.target.result;
+
+      if (!database.objectStoreNames.contains(LOG_STORE)) {
+        const store = database.createObjectStore(LOG_STORE, { keyPath: "id", autoIncrement: true });
+        store.createIndex("timestamp", "timestamp");
+        store.createIndex("type", "type");
+      }
+
+      if (!database.objectStoreNames.contains(TEMPLATE_STORE)) {
+        database.createObjectStore(TEMPLATE_STORE, { keyPath: "title" });
+      }
+    };
+
+    request.onsuccess = () => {
+      db = request.result;
+      resolve(db);
+    };
+
+    request.onerror = () => reject(request.error);
+  });
+}
+
+function tx(storeName, mode = "readonly") {
+  return db.transaction(storeName, mode).objectStore(storeName);
+}
+
+function addLog(log) {
+  return new Promise((resolve, reject) => {
+    const req = tx(LOG_STORE, "readwrite").add(log);
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+function deleteLog(id) {
+  return new Promise((resolve, reject) => {
+    const req = tx(LOG_STORE, "readwrite").delete(id);
+    req.onsuccess = () => resolve();
+    req.onerror = () => reject(req.error);
+  });
+}
+
+function getAllLogs() {
+  return new Promise((resolve, reject) => {
+    const req = tx(LOG_STORE).getAll();
+    req.onsuccess = () => resolve(req.result || []);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+function saveTemplate(template) {
+  return new Promise((resolve, reject) => {
+    const req = tx(TEMPLATE_STORE, "readwrite").put(template);
+    req.onsuccess = () => resolve();
+    req.onerror = () => reject(req.error);
+  });
+}
+
+function getAllTemplates() {
+  return new Promise((resolve, reject) => {
+    const req = tx(TEMPLATE_STORE).getAll();
+    req.onsuccess = () => resolve(req.result || []);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+function clearStore(storeName) {
+  return new Promise((resolve, reject) => {
+    const req = tx(storeName, "readwrite").clear();
+    req.onsuccess = () => resolve();
+    req.onerror = () => reject(req.error);
+  });
+}
+
+function nowISO() {
+  return new Date().toISOString();
+}
+
+function esc(value = "") {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;");
+}
+
+function toast(message) {
+  const el = document.getElementById("toast");
+  el.textContent = message;
+  el.classList.add("show");
+  setTimeout(() => el.classList.remove("show"), 1800);
+}
+
+function showScreen(name) {
+  ["home", "form", "history", "summary", "data"].forEach(s => {
+    document.getElementById(`screen-${s}`).classList.toggle("hidden", s !== name);
+  });
+
+  document.querySelectorAll(".nav-btn").forEach(btn => {
+    btn.classList.toggle("active", btn.dataset.screen === name);
+  });
+
+  if (name === "history") renderHistory();
+  if (name === "summary") renderSummary();
+  if (name !== "form") currentType = null;
+}
+
+function tags(name, options) {
+  return `<div class="tags" data-tag-group="${name}">
+    ${options.map((o, i) => `<button type="button" class="tag ${i===0 ? "active" : ""}" data-value="${esc(o)}">${esc(o)}</button>`).join("")}
+  </div>
+  <input type="hidden" name="${name}" value="${esc(options[0])}">`;
+}
+
+function numberField(label, name, unit = "", step = "any", min = "") {
+  return `<div class="field">
+    <label>${label}${unit ? ` (${unit})` : ""}</label>
+    <input type="number" name="${name}" step="${step}" ${min !== "" ? `min="${min}"` : ""}>
+  </div>`;
+}
+
+function renderForm(type) {
+  currentType = type;
+  document.getElementById("formTitle").textContent = TYPE_LABELS[type];
+  const c = document.getElementById("formContainer");
+
+  if (type === "food") {
+    c.innerHTML = `
+      <form id="logForm">
+        <div class="card">
+          <div class="field">
+            <label>Meal type</label>
+            ${tags("mealType", ["Breakfast","Lunch","Snack","Dinner"])}
+          </div>
+
+          <div class="field">
+            <label>Title</label>
+            <input id="foodTitle" name="title" list="foodTitles" placeholder="e.g. Rice and Tikka Masala" required>
+          </div>
+
+          <div class="field">
+            <label>Meal size (1–5)</label>
+            <input name="mealSize" type="range" min="1" max="5" value="3" oninput="this.nextElementSibling.textContent=this.value">
+            <span class="muted">3</span>
+          </div>
+
+          <div class="field">
+            <label>Key ingredients</label>
+            <div id="ingredients"></div>
+            <button type="button" class="small-btn" id="addIngredientBtn">+ Add ingredient</button>
+          </div>
+
+          <div class="row">
+            ${numberField("Meal weight","mealWeight","g","1","0")}
+            ${numberField("Energy","energy","kcal","1","0")}
+          </div>
+          <div class="row">
+            ${numberField("Fat","fat","g","0.1","0")}
+            ${numberField("Carbs","carbs","g","0.1","0")}
+          </div>
+          <div class="row">
+            ${numberField("Protein","protein","g","0.1","0")}
+            ${numberField("Fiber","fiber","g","0.1","0")}
+          </div>
+          ${numberField("Salt","salt","g","0.1","0")}
+
+          <div class="checkbox-row field">
+            <input id="saveMealTemplate" name="saveTemplate" type="checkbox">
+            <label for="saveMealTemplate" style="margin:0">Save/update as reusable meal</label>
+          </div>
+        </div>
+        <button class="primary">Save log</button>
+      </form>`;
+    addIngredientInput();
+    document.getElementById("addIngredientBtn").onclick = addIngredientInput;
+    setupFoodAutocomplete();
+  }
+
+  if (type === "drink") {
+    c.innerHTML = `
+      <form id="logForm">
+        <div class="card">
+          <div class="field">
+            <label>Drink type</label>
+            ${tags("drinkType", ["Water","Tea","Milk","Recovery shake","Other"])}
+          </div>
+          <div class="field hidden" id="otherDrinkWrap">
+            <label>Drink name</label>
+            <input name="otherDrink" placeholder="Enter drink">
+          </div>
+          ${numberField("Volume","volume","mL","1","0")}
+        </div>
+        <button class="primary">Save log</button>
+      </form>`;
+  }
+
+  if (type === "urine") {
+    c.innerHTML = `
+      <form id="logForm">
+        <div class="card">
+          ${numberField("Estimated volume / weight","volume","mL or g","1","0")}
+          <div class="field">
+            <label>Colour</label>
+            ${tags("color", [
+              "1 — Transparent",
+              "2 — Light yellow",
+              "3 — Medium yellow",
+              "4 — Dark yellow",
+              "5 — Other"
+            ])}
+          </div>
+        </div>
+        <button class="primary">Save log</button>
+      </form>`;
+  }
+
+  if (type === "stool") {
+    c.innerHTML = `
+      <form id="logForm">
+        <div class="card">
+          <div class="field">
+            <label>Volume (1–5)</label>
+            <input name="volume" type="range" min="1" max="5" value="3" oninput="this.nextElementSibling.textContent=this.value">
+            <span class="muted">3</span>
+          </div>
+
+          <div class="field">
+            <label>Bristol scale</label>
+            <select name="bristol">
+              ${[1,2,3,4,5,6,7].map(n => `<option value="${n}">${n}</option>`).join("")}
+            </select>
+          </div>
+
+          <div class="field">
+            <label>Colour</label>
+            ${tags("color", ["Brown","Light brown","Dark brown","Yellow","Green","Black","Red","Pale/clay","Other"])}
+          </div>
+
+          <div class="field">
+            <label>Buoyancy</label>
+            ${tags("buoyancy", ["Sinking","Floating","Mixed"])}
+          </div>
+
+          <div class="field">
+            <label>Urgency (1–5)</label>
+            <input name="urgency" type="range" min="1" max="5" value="2" oninput="this.nextElementSibling.textContent=this.value">
+            <span class="muted">2</span>
+          </div>
+        </div>
+        <button class="primary">Save log</button>
+      </form>`;
+  }
+
+  if (type === "gas") {
+    c.innerHTML = `
+      <form id="logForm">
+        <div class="card">
+          <div class="field">
+            <label>Volume / pressure (1–5)</label>
+            <input name="volume" type="range" min="1" max="5" value="2" oninput="this.nextElementSibling.textContent=this.value">
+            <span class="muted">2</span>
+          </div>
+          <div class="field">
+            <label>Smell</label>
+            ${tags("smell", ["None","Mild","Moderate","Strong","Very strong"])}
+          </div>
+          <div class="field">
+            <label>Notes</label>
+            <textarea name="notes" placeholder="Optional"></textarea>
+          </div>
+        </div>
+        <button class="primary">Save log</button>
+      </form>`;
+  }
+
+  if (type === "abdominal") {
+    c.innerHTML = `
+      <form id="logForm">
+        <div class="card">
+          <div class="field">
+            <label>Type</label>
+            ${tags("symptom", ["Bloating","Cramps","Pain","Nausea","Fullness","Reflux","Other"])}
+          </div>
+          <div class="field">
+            <label>Severity (1–5)</label>
+            <input name="severity" type="range" min="1" max="5" value="2" oninput="this.nextElementSibling.textContent=this.value">
+            <span class="muted">2</span>
+          </div>
+          <div class="field">
+            <label>Notes</label>
+            <textarea name="notes" placeholder="Optional"></textarea>
+          </div>
+        </div>
+        <button class="primary">Save log</button>
+      </form>`;
+  }
+
+  if (type === "weight") {
+    c.innerHTML = `
+      <form id="logForm">
+        <div class="card">
+          ${numberField("Body weight","weight","kg","0.1","0")}
+        </div>
+        <button class="primary">Save log</button>
+      </form>`;
+  }
+
+  setupTags();
+  document.getElementById("logForm").addEventListener("submit", submitForm);
+  showScreen("form");
+}
+
+function setupTags() {
+  document.querySelectorAll("[data-tag-group]").forEach(group => {
+    const hidden = group.nextElementSibling;
+    group.querySelectorAll(".tag").forEach(btn => {
+      btn.addEventListener("click", () => {
+        group.querySelectorAll(".tag").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        hidden.value = btn.dataset.value;
+
+        if (hidden.name === "drinkType") {
+          document.getElementById("otherDrinkWrap")?.classList.toggle("hidden", btn.dataset.value !== "Other");
+        }
+      });
+    });
+  });
+}
+
+function addIngredientInput(value = "") {
+  const wrap = document.getElementById("ingredients");
+  if (!wrap) return;
+
+  const row = document.createElement("div");
+  row.className = "ingredient-row";
+  row.innerHTML = `
+    <input class="ingredient-input" type="text" value="${esc(value)}" placeholder="Ingredient">
+    <button type="button" class="small-btn">×</button>
+  `;
+  row.querySelector("button").onclick = () => row.remove();
+  wrap.appendChild(row);
+}
+
+async function refreshFoodTitles() {
+  const templates = await getAllTemplates();
+  document.getElementById("foodTitles").innerHTML =
+    templates.map(t => `<option value="${esc(t.title)}"></option>`).join("");
+}
+
+async function setupFoodAutocomplete() {
+  await refreshFoodTitles();
+  const input = document.getElementById("foodTitle");
+  input.addEventListener("change", async () => {
+    const templates = await getAllTemplates();
+    const t = templates.find(x => x.title.toLowerCase() === input.value.trim().toLowerCase());
+    if (!t) return;
+
+    const form = document.getElementById("logForm");
+
+    setTagGroup("mealType", t.mealType);
+    form.elements.mealSize.value = t.mealSize ?? 3;
+    form.elements.mealSize.nextElementSibling.textContent = form.elements.mealSize.value;
+    form.elements.mealWeight.value = t.mealWeight ?? "";
+    form.elements.energy.value = t.energy ?? "";
+    form.elements.fat.value = t.fat ?? "";
+    form.elements.carbs.value = t.carbs ?? "";
+    form.elements.protein.value = t.protein ?? "";
+    form.elements.fiber.value = t.fiber ?? "";
+    form.elements.salt.value = t.salt ?? "";
+
+    document.getElementById("ingredients").innerHTML = "";
+    (t.ingredients || []).forEach(addIngredientInput);
+    if (!(t.ingredients || []).length) addIngredientInput();
+  });
+}
+
+function setTagGroup(name, value) {
+  const hidden = document.querySelector(`input[type="hidden"][name="${name}"]`);
+  if (!hidden) return;
+  const group = hidden.previousElementSibling;
+  hidden.value = value;
+  group.querySelectorAll(".tag").forEach(btn => {
+    btn.classList.toggle("active", btn.dataset.value === value);
+  });
+}
+
+function formToObject(form) {
+  const data = {};
+  new FormData(form).forEach((value, key) => {
+    if (value !== "") data[key] = value;
+  });
+  return data;
+}
+
+async function submitForm(event) {
+  event.preventDefault();
+  const form = event.target;
+  const data = formToObject(form);
+
+  if (currentType === "food") {
+    data.ingredients = [...document.querySelectorAll(".ingredient-input")]
+      .map(i => i.value.trim())
+      .filter(Boolean);
+
+    if (data.saveTemplate !== undefined) delete data.saveTemplate;
+
+    const saveAsTemplate = document.getElementById("saveMealTemplate")?.checked;
+    if (saveAsTemplate && data.title) {
+      await saveTemplate({ ...data, title: data.title.trim() });
+      await refreshFoodTitles();
+    }
+  }
+
+  if (currentType === "drink" && data.drinkType !== "Other") {
+    delete data.otherDrink;
+  }
+
+  const log = {
+    type: currentType,
+    timestamp: nowISO(),
+    ...data
+  };
+
+  await addLog(log);
+  toast("Saved");
+  showScreen("home");
+}
+
+function formatTime(iso) {
+  return new Intl.DateTimeFormat(undefined, {
+    year: "numeric", month: "short", day: "numeric",
+    hour: "2-digit", minute: "2-digit"
+  }).format(new Date(iso));
+}
+
+function summarizeLog(log) {
+  switch (log.type) {
+    case "food":
+      return `${log.mealType || ""}${log.title ? " · " + log.title : ""}${log.energy ? " · " + log.energy + " kcal" : ""}`;
+    case "drink":
+      return `${log.drinkType === "Other" ? (log.otherDrink || "Other") : log.drinkType || ""}${log.volume ? " · " + log.volume + " mL" : ""}`;
+    case "urine":
+      return `${log.volume ? log.volume + " mL/g" : ""}${log.color ? " · " + log.color : ""}`;
+    case "stool":
+      return `Volume ${log.volume || "–"} · Bristol ${log.bristol || "–"} · ${log.color || ""} · ${log.buoyancy || ""}`;
+    case "gas":
+      return `Volume ${log.volume || "–"} · Smell ${log.smell || "–"}${log.notes ? " · " + log.notes : ""}`;
+    case "abdominal":
+      return `${log.symptom || ""} · Severity ${log.severity || "–"}${log.notes ? " · " + log.notes : ""}`;
+    case "weight":
+      return `${log.weight || "–"} kg`;
+    default:
+      return "";
+  }
+}
+
+async function renderHistory() {
+  const filter = document.getElementById("historyFilter").value;
+  let logs = await getAllLogs();
+  logs.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+  if (filter) logs = logs.filter(l => l.type === filter);
+
+  const list = document.getElementById("historyList");
+  if (!logs.length) {
+    list.innerHTML = `<div class="muted">No entries yet.</div>`;
+    return;
+  }
+
+  list.innerHTML = logs.map(log => `
+    <div class="history-item">
+      <div class="history-head">
+        <div>
+          <h3>${esc(TYPE_LABELS[log.type])}</h3>
+          <div class="muted">${esc(formatTime(log.timestamp))}</div>
+        </div>
+        <button class="danger delete-log" data-id="${log.id}">Delete</button>
+      </div>
+      <div class="details">${esc(summarizeLog(log))}</div>
+    </div>
+  `).join("");
+
+  list.querySelectorAll(".delete-log").forEach(btn => {
+    btn.onclick = async () => {
+      if (!confirm("Delete this entry?")) return;
+      await deleteLog(Number(btn.dataset.id));
+      renderHistory();
+    };
+  });
+}
+
+async function renderSummary() {
+  const logs = await getAllLogs();
+  const today = new Date();
+  const isToday = iso => {
+    const d = new Date(iso);
+    return d.getFullYear() === today.getFullYear()
+      && d.getMonth() === today.getMonth()
+      && d.getDate() === today.getDate();
+  };
+
+  const todays = logs.filter(l => isToday(l.timestamp));
+
+  const fluid = todays
+    .filter(l => l.type === "drink")
+    .reduce((sum, l) => sum + Number(l.volume || 0), 0);
+
+  const urine = todays
+    .filter(l => l.type === "urine")
+    .reduce((sum, l) => sum + Number(l.volume || 0), 0);
+
+  const energy = todays
+    .filter(l => l.type === "food")
+    .reduce((sum, l) => sum + Number(l.energy || 0), 0);
+
+  const stools = todays.filter(l => l.type === "stool").length;
+  const gasEntries = todays.filter(l => l.type === "gas");
+  const avgGas = gasEntries.length
+    ? (gasEntries.reduce((s,l) => s + Number(l.volume || 0),0) / gasEntries.length).toFixed(1)
+    : "–";
+
+  const abd = todays.filter(l => l.type === "abdominal");
+  const maxAbd = abd.length ? Math.max(...abd.map(l => Number(l.severity || 0))) : "–";
+
+  const latestWeight = todays
+    .filter(l => l.type === "weight")
+    .sort((a,b) => new Date(b.timestamp)-new Date(a.timestamp))[0]?.weight ?? "–";
+
+  const entries = todays.length;
+
+  const metrics = [
+    ["Fluid", `${Math.round(fluid)} mL`],
+    ["Urine", `${Math.round(urine)} mL`],
+    ["Energy", `${Math.round(energy)} kcal`],
+    ["Stools", stools],
+    ["Avg gas", avgGas],
+    ["Max discomfort", maxAbd],
+    ["Weight", latestWeight === "–" ? "–" : `${latestWeight} kg`],
+    ["Entries", entries]
+  ];
+
+  document.getElementById("summaryGrid").innerHTML = metrics.map(([label, value]) => `
+    <div class="metric"><span class="muted">${label}</span><strong>${value}</strong></div>
+  `).join("");
+}
+
+function toCsvValue(value) {
+  if (value == null) return "";
+  if (Array.isArray(value)) value = value.join("; ");
+  const s = String(value).replaceAll('"','""');
+  return `"${s}"`;
+}
+
+async function exportCSV() {
+  const logs = await getAllLogs();
+  const columns = [
+    "id","timestamp","type",
+    "mealType","title","mealSize","ingredients","mealWeight","energy","fat","carbs","protein","fiber","salt",
+    "drinkType","otherDrink","volume","color",
+    "bristol","buoyancy","urgency",
+    "smell","notes",
+    "symptom","severity",
+    "weight"
+  ];
+
+  const lines = [
+    columns.join(","),
+    ...logs
+      .sort((a,b) => new Date(a.timestamp)-new Date(b.timestamp))
+      .map(log => columns.map(c => toCsvValue(log[c])).join(","))
+  ];
+
+  downloadBlob(lines.join("\n"), `gut-tracker-${dateFile()}.csv`, "text/csv;charset=utf-8");
+}
+
+async function backupJSON() {
+  const logs = await getAllLogs();
+  const templates = await getAllTemplates();
+  const payload = {
+    version: 1,
+    exportedAt: nowISO(),
+    logs,
+    templates
+  };
+  downloadBlob(JSON.stringify(payload, null, 2), `gut-tracker-backup-${dateFile()}.json`, "application/json");
+}
+
+function downloadBlob(content, filename, mime) {
+  const blob = new Blob([content], {type: mime});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function dateFile() {
+  return new Date().toISOString().slice(0,10);
+}
+
+async function restoreJSON(file) {
+  const text = await file.text();
+  const payload = JSON.parse(text);
+
+  if (!payload || !Array.isArray(payload.logs)) {
+    throw new Error("Invalid backup file");
+  }
+
+  const logStore = tx(LOG_STORE, "readwrite");
+  for (const log of payload.logs) {
+    const copy = {...log};
+    delete copy.id;
+    logStore.add(copy);
+  }
+
+  if (Array.isArray(payload.templates)) {
+    const templateStore = tx(TEMPLATE_STORE, "readwrite");
+    for (const t of payload.templates) templateStore.put(t);
+  }
+
+  toast("Backup restored");
+  await refreshFoodTitles();
+}
+
+document.querySelectorAll(".category").forEach(btn => {
+  btn.addEventListener("click", () => renderForm(btn.dataset.type));
+});
+
+document.querySelectorAll(".nav-btn").forEach(btn => {
+  btn.addEventListener("click", () => showScreen(btn.dataset.screen));
+});
+
+document.getElementById("backBtn").onclick = () => showScreen("home");
+document.getElementById("historyFilter").onchange = renderHistory;
+document.getElementById("exportCsvBtn").onclick = exportCSV;
+document.getElementById("backupBtn").onclick = backupJSON;
+
+document.getElementById("restoreFile").onchange = async e => {
+  const file = e.target.files?.[0];
+  if (!file) return;
+  try {
+    await restoreJSON(file);
+  } catch (err) {
+    alert("Could not restore backup: " + err.message);
+  }
+  e.target.value = "";
+};
+
+document.getElementById("clearBtn").onclick = async () => {
+  if (!confirm("Delete ALL logs and saved meals from this device?")) return;
+  if (!confirm("This cannot be undone unless you have a JSON backup. Continue?")) return;
+  await clearStore(LOG_STORE);
+  await clearStore(TEMPLATE_STORE);
+  await refreshFoodTitles();
+  toast("All data deleted");
+};
+
+(async function init() {
+  await openDB();
+  await refreshFoodTitles();
+
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("./sw.js").catch(() => {});
+  }
+})();
+</script>
+</body>
+</html>
